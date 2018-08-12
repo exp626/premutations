@@ -1,0 +1,4 @@
+create_table("premutations") {
+	t.Column("id", "int", {"primary": true})
+	t.Column("slice", "MEDIUMTEXT")
+}

@@ -7,9 +7,9 @@ import (
 	"github.com/gobuffalo/envy"
 	"github.com/unrolled/secure"
 
-	"premutations_api/models"
+	"premutations_api/middlewares"
 
-	"github.com/gobuffalo/x/sessions"
+	"github.com/gorilla/sessions"
 	"github.com/rs/cors"
 )
 
@@ -25,7 +25,7 @@ func App() *buffalo.App {
 	if app == nil {
 		app = buffalo.New(buffalo.Options{
 			Env:          ENV,
-			SessionStore: sessions.Null{},
+			SessionStore: sessions.NewCookieStore([]byte("FzxAFLjEcBY33rpASmqpGyvWndGh8gUM")),
 			PreWares: []buffalo.PreWare{
 				cors.Default().Handler,
 			},
@@ -33,6 +33,7 @@ func App() *buffalo.App {
 		})
 		// Automatically redirect to SSL
 		app.Use(forceSSL())
+		app.Use(middlewares.BodyLimit)
 
 		// Set the request content type to JSON
 		app.Use(middleware.SetContentType("application/json"))
@@ -44,9 +45,10 @@ func App() *buffalo.App {
 		// Wraps each request in a transaction.
 		//  c.Value("tx").(*pop.PopTransaction)
 		// Remove to disable this.
-		app.Use(middleware.PopTransaction(models.DB))
+		//app.Use(middleware.PopTransaction(models.DB))
 
-		app.GET("/", HomeHandler)
+		app.POST("/v1/init", V1PremutationsInit)
+		app.GET("/v1/next", V1PremutationsNext)
 
 	}
 
